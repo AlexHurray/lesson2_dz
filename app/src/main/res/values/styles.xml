@@ -75,6 +75,13 @@
         <item name="android:scaleType">centerCrop</item>
     </style>
 
+    <style name="ErrorTextStyle">
+        <item name="android:layout_marginTop">@dimen/spacing_standard</item>
+        <item name="android:textColor">@color/colorError</item>
+        <item name="android:textSize">@dimen/text_size</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
     <declare-styleable name="StandardViewStyleTable">
         <attr name="android:layout_marginBottom" />
         <attr name="android:layout_marginEnd" />

@@ -1,25 +1,33 @@
 package com.example.ermolaenkoalex.nytimes.ui.newslist;
 
 import android.content.Intent;
-import android.content.res.Configuration;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 
 import com.example.ermolaenkoalex.nytimes.common.BaseActivity;
-import com.example.ermolaenkoalex.nytimes.mock.DataUtils;
 import com.example.ermolaenkoalex.nytimes.ui.about.AboutActivity;
 import com.example.ermolaenkoalex.nytimes.R;
 import com.example.ermolaenkoalex.nytimes.ui.newsdetails.NewsDetailsActivity;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+import butterknife.BindView;
 
-public class NewsListActivity extends BaseActivity {
+public class NewsListActivity extends BaseActivity implements SwipeRefreshLayout.OnRefreshListener {
+
+    @BindView(R.id.recycler_view)
+    RecyclerView recyclerView;
+
+    @BindView(R.id.refresher)
+    SwipeRefreshLayout refresher;
+
+    private NewsListViewModel viewModel;
 
     private final NewsRecyclerAdapter.OnItemClickListener clickListener = newsItem
             -> NewsDetailsActivity.start(this, newsItem);
@@ -29,8 +37,10 @@ public class NewsListActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_news_list);
 
-        RecyclerView recyclerView = findViewById(R.id.recycler_view);
-        recyclerView.setAdapter(new NewsRecyclerAdapter(this, DataUtils.generateNews(), clickListener));
+        viewModel = ViewModelProviders.of(this).get(NewsListViewModel.class);
+
+        NewsRecyclerAdapter adapter = new NewsRecyclerAdapter(this, clickListener);
+        recyclerView.setAdapter(adapter);
 
         int numCol = getResources().getInteger(R.integer.news_columns_count);
 
@@ -40,6 +50,27 @@ public class NewsListActivity extends BaseActivity {
 
         recyclerView.addItemDecoration(new ItemDecorationNewsList(
                 getResources().getDimensionPixelSize(R.dimen.spacing_small), numCol));
+
+        refresher.setOnRefreshListener(this);
+
+        if (viewModel.hasData()) {
+            adapter.setData(viewModel.getNews());
+        } else {
+            viewModel.bind(recyclerView, refresher);
+            onRefresh();
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        viewModel.bind(recyclerView, refresher);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        viewModel.unbind();
     }
 
     @Override
@@ -57,5 +88,10 @@ public class NewsListActivity extends BaseActivity {
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
+
+    @Override
+    public void onRefresh() {
+        viewModel.loadData();
     }
 }
