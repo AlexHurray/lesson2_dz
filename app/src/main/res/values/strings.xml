@@ -18,5 +18,4 @@
     <string name="desc_vk">VKontakte</string>
     <string name="desc_fb">Facebook</string>
     <string name="desc_twitter">Twitter</string>
-    <string name="error_message">Something went wrong. Try again.</string>
 </resources>
