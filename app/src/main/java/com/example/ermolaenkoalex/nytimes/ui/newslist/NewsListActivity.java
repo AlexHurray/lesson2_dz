@@ -6,9 +6,12 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import com.example.ermolaenkoalex.nytimes.common.BaseActivity;
+import com.example.ermolaenkoalex.nytimes.model.NewsItem;
 import com.example.ermolaenkoalex.nytimes.ui.about.AboutActivity;
 import com.example.ermolaenkoalex.nytimes.R;
 import com.example.ermolaenkoalex.nytimes.ui.newsdetails.NewsDetailsActivity;
+
+import java.util.List;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -19,7 +22,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import butterknife.BindView;
 
-public class NewsListActivity extends BaseActivity implements SwipeRefreshLayout.OnRefreshListener {
+public class NewsListActivity extends BaseActivity
+        implements SwipeRefreshLayout.OnRefreshListener, NewsListView {
 
     @BindView(R.id.recycler_view)
     RecyclerView recyclerView;
@@ -27,7 +31,8 @@ public class NewsListActivity extends BaseActivity implements SwipeRefreshLayout
     @BindView(R.id.refresher)
     SwipeRefreshLayout refresher;
 
-    private NewsListViewModel viewModel;
+    private NewsListPresenter presenter;
+    private NewsRecyclerAdapter adapter;
 
     private final NewsRecyclerAdapter.OnItemClickListener clickListener = newsItem
             -> NewsDetailsActivity.start(this, newsItem);
@@ -37,9 +42,9 @@ public class NewsListActivity extends BaseActivity implements SwipeRefreshLayout
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_news_list);
 
-        viewModel = ViewModelProviders.of(this).get(NewsListViewModel.class);
+        presenter = ViewModelProviders.of(this).get(NewsListPresenter.class);
 
-        NewsRecyclerAdapter adapter = new NewsRecyclerAdapter(this, clickListener);
+        adapter = new NewsRecyclerAdapter(this, clickListener);
         recyclerView.setAdapter(adapter);
 
         int numCol = getResources().getInteger(R.integer.news_columns_count);
@@ -52,25 +57,19 @@ public class NewsListActivity extends BaseActivity implements SwipeRefreshLayout
                 getResources().getDimensionPixelSize(R.dimen.spacing_small), numCol));
 
         refresher.setOnRefreshListener(this);
-
-        if (viewModel.hasData()) {
-            adapter.setData(viewModel.getNews());
-        } else {
-            viewModel.bind(recyclerView, refresher);
-            onRefresh();
-        }
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        viewModel.bind(recyclerView, refresher);
+        presenter.bind(this);
+        presenter.getNews(false);
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        viewModel.unbind();
+        presenter.unbind();
     }
 
     @Override
@@ -92,6 +91,21 @@ public class NewsListActivity extends BaseActivity implements SwipeRefreshLayout
 
     @Override
     public void onRefresh() {
-        viewModel.loadData();
+        presenter.getNews(true);
+    }
+
+    @Override
+    public void showLoading() {
+        refresher.setRefreshing(true);
+    }
+
+    @Override
+    public void hideLoading() {
+        refresher.setRefreshing(false);
+    }
+
+    @Override
+    public void setData(@NonNull List<NewsItem> data) {
+        adapter.setData(data);
     }
 }

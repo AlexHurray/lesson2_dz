@@ -13,7 +13,7 @@ import java.util.List;
 public class DataUtils {
 
     private static final int DELAY_TIME = 4000;
-    private static final String LOG_TAG = "NYTimes_Log_DataUtils";
+    private static final String LOG_TAG = "DataUtils";
 
     public static List<NewsItem> generateNews() {
         final Category darwinAwards = new Category(1, "Darwin Awards");
@@ -142,8 +142,7 @@ public class DataUtils {
 
         try {
             Thread.sleep(DELAY_TIME);
-        }
-        catch (InterruptedException ex){
+        } catch (InterruptedException ex) {
             ex.printStackTrace();
         }
 

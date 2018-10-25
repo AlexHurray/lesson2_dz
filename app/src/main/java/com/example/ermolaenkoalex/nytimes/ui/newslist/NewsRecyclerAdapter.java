@@ -39,8 +39,7 @@ public class NewsRecyclerAdapter extends RecyclerView.Adapter<NewsRecyclerAdapte
     @NonNull
     private final RequestManager imageLoader;
 
-    NewsRecyclerAdapter(@NonNull Context context,
-                        @Nullable OnItemClickListener clickListener) {
+    NewsRecyclerAdapter(@NonNull Context context, @Nullable OnItemClickListener clickListener) {
         this.context = context;
         this.clickListener = clickListener;
         this.inflater = LayoutInflater.from(context);
@@ -77,7 +76,7 @@ public class NewsRecyclerAdapter extends RecyclerView.Adapter<NewsRecyclerAdapte
         return R.layout.item_news;
     }
 
-    public void setData(List<NewsItem> data){
+    public void setData(List<NewsItem> data) {
         newsItems.clear();
         newsItems.addAll(data);
 

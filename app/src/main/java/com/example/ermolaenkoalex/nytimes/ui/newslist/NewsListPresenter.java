@@ -9,58 +9,61 @@ import java.util.ArrayList;
 import java.util.List;
 
 import androidx.lifecycle.ViewModel;
-import androidx.recyclerview.widget.RecyclerView;
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 
-public class NewsListViewModel extends ViewModel {
+public class NewsListPresenter extends ViewModel {
 
-    private final String LOG_TAG = "NYTimes_Log_NewsListVM";
+    private final String LOG_TAG = "NewsListVM";
 
     private Disposable disposable;
     private List<NewsItem> newsList = new ArrayList<>();
-    private RecyclerView recyclerView;
-    private SwipeRefreshLayout refresher;
+    private NewsListView newsListView;
 
-    public void bind(RecyclerView recyclerView, SwipeRefreshLayout refresher) {
-        this.recyclerView = recyclerView;
-        this.refresher = refresher;
+    public void bind(NewsListView newsListView) {
+        this.newsListView = newsListView;
     }
 
     public void unbind() {
-        recyclerView = null;
-        refresher = null;
+        newsListView = null;
     }
 
-    public List<NewsItem> getNews() {
-        return newsList;
+    public void getNews(boolean force) {
+        if (newsList.isEmpty() || force) {
+            loadData();
+        } else {
+            newsListView.setData(newsList);
+        }
     }
 
     public void loadData() {
+        dispose();
+
         disposable = Observable.fromCallable(DataUtils::generateNews)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .doOnSubscribe(disposable -> refresher.setRefreshing(true))
-                .doFinally(() -> refresher.setRefreshing(false))
+                .doOnSubscribe(disposable -> newsListView.showLoading())
+                .doFinally(newsListView::hideLoading)
                 .subscribe(newsItems -> {
                     Log.d(LOG_TAG, "subscribe call in " + Thread.currentThread());
 
-                    ((NewsRecyclerAdapter) recyclerView.getAdapter()).setData(newsItems);
+                    newsListView.setData(newsItems);
                     newsList.clear();
                     newsList.addAll(newsItems);
                 });
     }
 
-    public boolean hasData() {
-        return !newsList.isEmpty();
-    }
-
     @Override
     protected void onCleared() {
+        dispose();
         super.onCleared();
-        disposable.dispose();
+    }
+
+    private void dispose() {
+        if (disposable != null && !disposable.isDisposed()) {
+            disposable.dispose();
+        }
     }
 }
