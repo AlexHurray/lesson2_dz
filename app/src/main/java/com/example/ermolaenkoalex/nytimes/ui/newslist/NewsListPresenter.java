@@ -9,8 +9,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModel;
-import io.reactivex.Observable;
+import io.reactivex.Single;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
@@ -19,8 +20,13 @@ public class NewsListPresenter extends ViewModel {
 
     private static final String LOG_TAG = "NewsListVM";
 
+    @Nullable
     private Disposable disposable;
+
+    @NonNull
     private List<NewsItem> newsList = new ArrayList<>();
+
+    @Nullable
     private NewsListView newsListView;
 
     public void bind(@NonNull NewsListView newsListView) {
@@ -42,14 +48,12 @@ public class NewsListPresenter extends ViewModel {
     private void loadData() {
         dispose();
 
-        disposable = Observable.fromCallable(DataUtils::generateNews)
+        if (newsListView != null) {
+            newsListView.showLoading();
+        }
+        disposable = Single.fromCallable(DataUtils::generateNews)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .doOnSubscribe(disposable -> {
-                    if (newsListView != null) {
-                        newsListView.showLoading();
-                    }
-                })
                 .doFinally(() -> {
                     if (newsListView != null) {
                         newsListView.hideLoading();
@@ -63,6 +67,11 @@ public class NewsListPresenter extends ViewModel {
                     }
                     newsList.clear();
                     newsList.addAll(newsItems);
+                }, error -> {
+                    Log.d(LOG_TAG, "OnError call");
+                    if (newsListView != null) {
+                        newsListView.showErrorToast();
+                    }
                 });
     }
 
@@ -75,6 +84,7 @@ public class NewsListPresenter extends ViewModel {
     private void dispose() {
         if (disposable != null) {
             disposable.dispose();
+            disposable = null;
         }
     }
 }

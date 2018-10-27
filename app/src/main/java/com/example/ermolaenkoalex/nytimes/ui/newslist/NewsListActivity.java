@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import com.example.ermolaenkoalex.nytimes.common.BaseActivity;
 import com.example.ermolaenkoalex.nytimes.model.NewsItem;
@@ -26,16 +27,18 @@ public class NewsListActivity extends BaseActivity
         implements SwipeRefreshLayout.OnRefreshListener, NewsListView {
 
     @BindView(R.id.recycler_view)
+    @NonNull
     RecyclerView recyclerView;
 
     @BindView(R.id.refresher)
+    @NonNull
     SwipeRefreshLayout refresher;
 
+    @NonNull
     private NewsListPresenter presenter;
-    private NewsRecyclerAdapter adapter;
 
-    private final NewsRecyclerAdapter.OnItemClickListener clickListener = newsItem
-            -> NewsDetailsActivity.start(this, newsItem);
+    @NonNull
+    private NewsRecyclerAdapter adapter;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -44,7 +47,8 @@ public class NewsListActivity extends BaseActivity
 
         presenter = ViewModelProviders.of(this).get(NewsListPresenter.class);
 
-        adapter = new NewsRecyclerAdapter(this, clickListener);
+        adapter = new NewsRecyclerAdapter(this, newsItem
+                -> NewsDetailsActivity.start(this, newsItem));
         recyclerView.setAdapter(adapter);
 
         int numCol = getResources().getInteger(R.integer.news_columns_count);
@@ -107,5 +111,10 @@ public class NewsListActivity extends BaseActivity
     @Override
     public void setData(@NonNull List<NewsItem> data) {
         adapter.setData(data);
+    }
+
+    @Override
+    public void showErrorToast() {
+        Toast.makeText(this, R.string.unknown_error, Toast.LENGTH_LONG).show();
     }
 }

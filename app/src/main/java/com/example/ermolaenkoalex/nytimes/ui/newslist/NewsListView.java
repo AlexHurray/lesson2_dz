@@ -13,4 +13,6 @@ public interface NewsListView {
     void hideLoading();
 
     void setData(@NonNull List<NewsItem> data);
+
+    void showErrorToast();
 }
