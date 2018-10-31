@@ -6,18 +6,18 @@ import java.util.Date;
 public class NewsItem implements Serializable {
     private final String title;
     private final String imageUrl;
-    private final Category category;
+    private final String category;
     private final Date publishDate;
     private final String previewText;
-    private final String fullText;
+    private final String itemUrl;
 
-    public NewsItem(String title, String imageUrl, Category category, Date publishDate, String previewText, String fullText) {
+    public NewsItem(String title, String imageUrl, String category, Date publishDate, String previewText, String itemUrl) {
         this.title = title;
         this.imageUrl = imageUrl;
         this.category = category;
         this.publishDate = publishDate;
         this.previewText = previewText;
-        this.fullText = fullText;
+        this.itemUrl = itemUrl;
     }
 
     public String getTitle() {
@@ -28,7 +28,7 @@ public class NewsItem implements Serializable {
         return imageUrl;
     }
 
-    public Category getCategory() {
+    public String getCategory() {
         return category;
     }
 
@@ -40,7 +40,7 @@ public class NewsItem implements Serializable {
         return previewText;
     }
 
-    public String getFullText() {
-        return fullText;
+    public String getItemUrl() {
+        return itemUrl;
     }
 }

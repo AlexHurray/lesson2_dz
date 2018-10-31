@@ -1,16 +1,20 @@
 package com.example.ermolaenkoalex.nytimes.ui.newslist;
 
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.Toast;
+import android.view.View;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import com.example.ermolaenkoalex.nytimes.common.BaseActivity;
 import com.example.ermolaenkoalex.nytimes.model.NewsItem;
 import com.example.ermolaenkoalex.nytimes.ui.about.AboutActivity;
 import com.example.ermolaenkoalex.nytimes.R;
 import com.example.ermolaenkoalex.nytimes.ui.newsdetails.NewsDetailsActivity;
+import com.google.android.material.chip.Chip;
 
 import java.util.List;
 
@@ -34,6 +38,18 @@ public class NewsListActivity extends BaseActivity
     @NonNull
     SwipeRefreshLayout refresher;
 
+    @BindView(R.id.tv_error)
+    @NonNull
+    TextView tvError;
+
+    @BindView(R.id.tv_no_data)
+    @NonNull
+    TextView tvNoData;
+
+    @BindView(R.id.ll_sections)
+    @NonNull
+    LinearLayout llSections;
+
     @NonNull
     private NewsListPresenter presenter;
 
@@ -48,7 +64,7 @@ public class NewsListActivity extends BaseActivity
         presenter = ViewModelProviders.of(this).get(NewsListPresenter.class);
 
         adapter = new NewsRecyclerAdapter(this, newsItem
-                -> NewsDetailsActivity.start(this, newsItem));
+                -> NewsDetailsActivity.start(this, newsItem.getItemUrl(), newsItem.getCategory()));
         recyclerView.setAdapter(adapter);
 
         int numCol = getResources().getInteger(R.integer.news_columns_count);
@@ -61,6 +77,8 @@ public class NewsListActivity extends BaseActivity
                 getResources().getDimensionPixelSize(R.dimen.spacing_small), numCol));
 
         refresher.setOnRefreshListener(this);
+
+        addChips();
     }
 
     @Override
@@ -99,22 +117,82 @@ public class NewsListActivity extends BaseActivity
     }
 
     @Override
-    public void showLoading() {
-        refresher.setRefreshing(true);
-    }
-
-    @Override
-    public void hideLoading() {
-        refresher.setRefreshing(false);
-    }
-
-    @Override
     public void setData(@NonNull List<NewsItem> data) {
         adapter.setData(data);
+        recyclerView.scrollToPosition(0);
     }
 
     @Override
-    public void showErrorToast() {
-        Toast.makeText(this, R.string.unknown_error, Toast.LENGTH_LONG).show();
+    public void showState(@NonNull ResponseState state) {
+        switch (state) {
+            case HasData:
+                refresher.setRefreshing(false);
+                tvError.setVisibility(View.GONE);
+                tvNoData.setVisibility(View.GONE);
+
+                recyclerView.setVisibility(View.VISIBLE);
+                break;
+
+            case HasNoData:
+                refresher.setRefreshing(false);
+                recyclerView.setVisibility(View.GONE);
+                tvError.setVisibility(View.GONE);
+
+                tvNoData.setVisibility(View.VISIBLE);
+                break;
+
+            case NetworkError:
+                refresher.setRefreshing(false);
+                recyclerView.setVisibility(View.GONE);
+                tvNoData.setVisibility(View.GONE);
+
+                tvError.setText(getText(R.string.error_network));
+                tvError.setVisibility(View.VISIBLE);
+                break;
+
+            case ServerError:
+                refresher.setRefreshing(false);
+                recyclerView.setVisibility(View.GONE);
+                tvNoData.setVisibility(View.GONE);
+
+                tvError.setText(getText(R.string.error_server));
+                tvError.setVisibility(View.VISIBLE);
+                break;
+
+            case Loading:
+                refresher.setRefreshing(true);
+                break;
+
+            default:
+                throw new IllegalArgumentException("Unknown state: " + state);
+        }
+    }
+
+    private void addChips() {
+
+        for (Section section : Section.values()) {
+            Chip chip = new Chip(this);
+
+            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT);
+
+            if (Build.VERSION.SDK_INT < 23) {
+                chip.setTextAppearance(this, R.style.TextAppearance_AppCompat_Title_Inverse);
+            } else {
+                chip.setTextAppearance(R.style.TextAppearance_AppCompat_Title_Inverse);
+            }
+
+            int spacing = getResources().getDimensionPixelSize(R.dimen.spacing_standard);
+            params.setMargins(spacing, spacing, spacing, spacing);
+            params.setMarginStart(spacing);
+            params.setMarginEnd(spacing);
+
+            chip.setLayoutParams(params);
+            chip.setChipBackgroundColorResource(R.color.colorPrimaryDark);
+            chip.setText(getString(section.getSectionNameResId()));
+            chip.setOnClickListener(view -> presenter.getNews(true, section.getSectionName()));
+
+            llSections.addView(chip);
+        }
     }
 }

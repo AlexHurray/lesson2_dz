@@ -8,11 +8,7 @@ import androidx.annotation.NonNull;
 
 public interface NewsListView {
 
-    void showLoading();
-
-    void hideLoading();
-
     void setData(@NonNull List<NewsItem> data);
 
-    void showErrorToast();
+    void showState(@NonNull ResponseState state);
 }
