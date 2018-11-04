@@ -1,13 +1,13 @@
 package com.example.ermolaenkoalex.nytimes.ui.newslist;
 
 import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.ermolaenkoalex.nytimes.common.BaseActivity;
 import com.example.ermolaenkoalex.nytimes.model.NewsItem;
@@ -20,6 +20,7 @@ import java.util.List;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.widget.TextViewCompat;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -42,10 +43,6 @@ public class NewsListActivity extends BaseActivity
     @NonNull
     TextView tvError;
 
-    @BindView(R.id.tv_no_data)
-    @NonNull
-    TextView tvNoData;
-
     @BindView(R.id.ll_sections)
     @NonNull
     LinearLayout llSections;
@@ -64,7 +61,7 @@ public class NewsListActivity extends BaseActivity
         presenter = ViewModelProviders.of(this).get(NewsListPresenter.class);
 
         adapter = new NewsRecyclerAdapter(this, newsItem
-                -> NewsDetailsActivity.start(this, newsItem.getItemUrl(), newsItem.getCategory()));
+                -> NewsDetailsActivity.start(this, newsItem));
         recyclerView.setAdapter(adapter);
 
         int numCol = getResources().getInteger(R.integer.news_columns_count);
@@ -124,47 +121,26 @@ public class NewsListActivity extends BaseActivity
 
     @Override
     public void showState(@NonNull ResponseState state) {
-        switch (state) {
-            case HasData:
-                refresher.setRefreshing(false);
-                tvError.setVisibility(View.GONE);
-                tvNoData.setVisibility(View.GONE);
+        if (state.isLoading()) {
+            refresher.setRefreshing(true);
+        } else {
+            refresher.setRefreshing(false);
+        }
 
-                recyclerView.setVisibility(View.VISIBLE);
-                break;
+        if (state.hasData()) {
+            recyclerView.setVisibility(View.VISIBLE);
+            tvError.setVisibility(View.GONE);
 
-            case HasNoData:
-                refresher.setRefreshing(false);
-                recyclerView.setVisibility(View.GONE);
-                tvError.setVisibility(View.GONE);
+            if (state.hasError()) {
+                Toast.makeText(this, state.getErrorMessage(), Toast.LENGTH_LONG).show();
+            }
+        } else {
+            recyclerView.setVisibility(View.GONE);
 
-                tvNoData.setVisibility(View.VISIBLE);
-                break;
-
-            case NetworkError:
-                refresher.setRefreshing(false);
-                recyclerView.setVisibility(View.GONE);
-                tvNoData.setVisibility(View.GONE);
-
-                tvError.setText(getText(R.string.error_network));
+            if (state.hasError()) {
                 tvError.setVisibility(View.VISIBLE);
-                break;
-
-            case ServerError:
-                refresher.setRefreshing(false);
-                recyclerView.setVisibility(View.GONE);
-                tvNoData.setVisibility(View.GONE);
-
-                tvError.setText(getText(R.string.error_server));
-                tvError.setVisibility(View.VISIBLE);
-                break;
-
-            case Loading:
-                refresher.setRefreshing(true);
-                break;
-
-            default:
-                throw new IllegalArgumentException("Unknown state: " + state);
+                tvError.setText(state.getErrorMessage());
+            }
         }
     }
 
@@ -176,11 +152,7 @@ public class NewsListActivity extends BaseActivity
             LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,
                     LinearLayout.LayoutParams.WRAP_CONTENT);
 
-            if (Build.VERSION.SDK_INT < 23) {
-                chip.setTextAppearance(this, R.style.TextAppearance_AppCompat_Title_Inverse);
-            } else {
-                chip.setTextAppearance(R.style.TextAppearance_AppCompat_Title_Inverse);
-            }
+            TextViewCompat.setTextAppearance(chip, R.style.TextAppearance_AppCompat_Title_Inverse);
 
             int spacing = getResources().getDimensionPixelSize(R.dimen.spacing_standard);
             params.setMargins(spacing, spacing, spacing, spacing);
@@ -189,8 +161,8 @@ public class NewsListActivity extends BaseActivity
 
             chip.setLayoutParams(params);
             chip.setChipBackgroundColorResource(R.color.colorPrimaryDark);
-            chip.setText(getString(section.getSectionNameResId()));
-            chip.setOnClickListener(view -> presenter.getNews(true, section.getSectionName()));
+            chip.setText(section.getSectionNameResId());
+            chip.setOnClickListener(view -> presenter.getNews(true, section));
 
             llSections.addView(chip);
         }

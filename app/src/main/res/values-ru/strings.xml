@@ -23,7 +23,7 @@
     <string name="unknown_error">Что-то пошло не так!</string>
     <string name="error_data_is_empty">Запрос не дал результатов</string>
     <string name="error_network">Ошибка сети. Пожалуйста, проверьте ваше соединение и повторите попытку</string>
-    <string name="error_server">Ошибка сервера</string>
+    <string name="error_request">Ошибка выполнения запроса</string>
 
     <string name="section_home">Главная</string>
     <string name="section_opinion">Мнение</string>

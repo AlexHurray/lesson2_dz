@@ -1,5 +1,7 @@
 package com.example.ermolaenkoalex.nytimes.dto;
 
+import com.example.ermolaenkoalex.nytimes.ui.newslist.ContentFormat;
+import com.example.ermolaenkoalex.nytimes.ui.newslist.ContentType;
 import com.google.gson.annotations.SerializedName;
 
 public class MultimediaDTO {
@@ -8,20 +10,20 @@ public class MultimediaDTO {
     private String url;
 
     @SerializedName("type")
-    private String type;
+    private ContentType type;
 
     @SerializedName("format")
-    private String format;
+    private ContentFormat format;
 
     public String getUrl() {
         return url;
     }
 
-    public String getType() {
+    public ContentType getType() {
         return type;
     }
 
-    public String getFormat() {
+    public ContentFormat getFormat() {
         return format;
     }
 }

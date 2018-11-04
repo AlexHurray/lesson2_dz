@@ -1,6 +1,5 @@
 package com.example.ermolaenkoalex.nytimes.NetworkAPI;
 
-
 import java.util.concurrent.TimeUnit;
 
 import androidx.annotation.NonNull;
@@ -12,7 +11,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public final class RestApi {
 
-    private static final String URL = "http://api.nytimes.com/svc/topstories/v2/";
+    private static final String URL = "http://api.nytimes.com/";
     private static final String API_KEY = "dec3395ed3034d1599bac75404d47ed2";
 
     private static final int TIMEOUT_IN_SECONDS = 2;
@@ -21,11 +20,11 @@ public final class RestApi {
     private final NewsEndpoint newsEndpoint;
 
 
-    public static synchronized RestApi getInstance() {
+    public static synchronized NewsEndpoint getInstance() {
         if (sRestApi == null) {
             sRestApi = new RestApi();
         }
-        return sRestApi;
+        return sRestApi.news();
     }
 
 
@@ -42,6 +41,7 @@ public final class RestApi {
                 .baseUrl(URL)
                 .client(client)
                 .addConverterFactory(GsonConverterFactory.create())
+                .addConverterFactory(new EnumValueConverter())
                 .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
                 .build();
     }
@@ -60,7 +60,7 @@ public final class RestApi {
                 .build();
     }
 
-    public NewsEndpoint news() {
+    private NewsEndpoint news() {
         return newsEndpoint;
     }
 }

@@ -3,16 +3,15 @@ package com.example.ermolaenkoalex.nytimes.utils;
 import com.example.ermolaenkoalex.nytimes.dto.MultimediaDTO;
 import com.example.ermolaenkoalex.nytimes.dto.ResultDTO;
 import com.example.ermolaenkoalex.nytimes.model.NewsItem;
+import com.example.ermolaenkoalex.nytimes.ui.newslist.ContentFormat;
+import com.example.ermolaenkoalex.nytimes.ui.newslist.ContentType;
 
 import java.util.List;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-public class NewsItemConverter {
-
-    private static final String IMAGE_TYPE = "image";
-    private static final String THUMBLARGE_FORMAT = "thumbLarge";
+public final class NewsItemConverter {
 
     @NonNull
     public static NewsItem resultDTO2NewsItem(@NonNull ResultDTO resultDTO) {
@@ -23,12 +22,12 @@ public class NewsItemConverter {
                 ? subsection
                 : resultDTO.getSection();
 
-        return new NewsItem(resultDTO.getTitle()
-                , imageUrl
-                , category
-                , resultDTO.getPublishedDate()
-                , resultDTO.getAbstractText()
-                , resultDTO.getUrl());
+        return new NewsItem(resultDTO.getTitle(),
+                imageUrl,
+                category,
+                resultDTO.getPublishedDate(),
+                resultDTO.getAbstractText(),
+                resultDTO.getUrl());
     }
 
     @Nullable
@@ -40,14 +39,6 @@ public class NewsItemConverter {
 
         List<MultimediaDTO> mediaObjects = resultDTO.getMultimedia();
 
-        // Usually we need to get second record
-        if (mediaObjects.size() > 2) {
-            MultimediaDTO multimediaDTO = mediaObjects.get(1);
-            if (isThumblarge(multimediaDTO)) {
-                return multimediaDTO.getUrl();
-            }
-        }
-
         for (MultimediaDTO multimediaDTO : mediaObjects) {
             if (isThumblarge(multimediaDTO)) {
                 return multimediaDTO.getUrl();
@@ -55,7 +46,8 @@ public class NewsItemConverter {
         }
 
         MultimediaDTO multimediaDTO = mediaObjects.get(0);
-        if (multimediaDTO.getType().equalsIgnoreCase(IMAGE_TYPE)) {
+        ContentType type = multimediaDTO.getType();
+        if (type != null && type == ContentType.IMAGE) {
             return multimediaDTO.getUrl();
         }
 
@@ -63,8 +55,9 @@ public class NewsItemConverter {
     }
 
     private static boolean isThumblarge(@NonNull MultimediaDTO multimediaDTO) {
-        return multimediaDTO.getType().equalsIgnoreCase(IMAGE_TYPE)
-                && multimediaDTO.getFormat().equalsIgnoreCase(THUMBLARGE_FORMAT);
+        ContentType type = multimediaDTO.getType();
+        ContentFormat format = multimediaDTO.getFormat();
+        return type != null && type == ContentType.IMAGE && format != null && format == ContentFormat.THUMB_LARGE;
     }
 
     private NewsItemConverter() {

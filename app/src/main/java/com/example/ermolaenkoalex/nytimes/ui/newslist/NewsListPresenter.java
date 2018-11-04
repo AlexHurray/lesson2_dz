@@ -3,6 +3,7 @@ package com.example.ermolaenkoalex.nytimes.ui.newslist;
 import android.util.Log;
 
 import com.example.ermolaenkoalex.nytimes.NetworkAPI.RestApi;
+import com.example.ermolaenkoalex.nytimes.R;
 import com.example.ermolaenkoalex.nytimes.dto.ResultDTO;
 import com.example.ermolaenkoalex.nytimes.dto.ResultsDTO;
 import com.example.ermolaenkoalex.nytimes.model.NewsItem;
@@ -18,7 +19,6 @@ import androidx.lifecycle.ViewModel;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
-import retrofit2.Response;
 
 public class NewsListPresenter extends ViewModel {
 
@@ -34,7 +34,7 @@ public class NewsListPresenter extends ViewModel {
     private NewsListView newsListView;
 
     @NonNull
-    private String currentSection = Section.Home.getSectionName();
+    private Section currentSection = Section.HOME;
 
     public void bind(@NonNull NewsListView newsListView) {
         this.newsListView = newsListView;
@@ -45,18 +45,10 @@ public class NewsListPresenter extends ViewModel {
     }
 
     public void getNews(boolean forceReload) {
-        if (newsList.isEmpty() || forceReload) {
-            loadData();
-        } else {
-            newsListView.setData(newsList);
-        }
+        getNews(forceReload, currentSection);
     }
 
-    public void getNews(boolean forceReload, String section) {
-        if (currentSection.equalsIgnoreCase(section)) {
-            return;
-        }
-
+    public void getNews(boolean forceReload, Section section) {
         currentSection = section;
 
         if (newsList.isEmpty() || forceReload) {
@@ -69,12 +61,9 @@ public class NewsListPresenter extends ViewModel {
     private void loadData() {
         dispose();
 
-        if (newsListView != null) {
-            newsListView.showState(ResponseState.Loading);
-        }
+        showState(new ResponseState(true, !newsList.isEmpty()));
 
         disposable = RestApi.getInstance()
-                .news()
                 .getNews(currentSection)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -87,42 +76,39 @@ public class NewsListPresenter extends ViewModel {
         super.onCleared();
     }
 
-    private void showState(ResponseState state) {
+    private void showState(@NonNull ResponseState state) {
         if (newsListView != null) {
             newsListView.showState(state);
+        }
+    }
+
+    private void showStateWithData(@NonNull ResponseState state, @NonNull List<NewsItem> data) {
+        if (newsListView != null) {
+            newsListView.showState(state);
+            newsListView.setData(data);
         }
     }
 
     private void handleError(Throwable throwable) {
         Log.d(LOG_TAG, "handleError");
 
+        ResponseState state = new ResponseState(false, !newsList.isEmpty());
+
         if (throwable instanceof IOException) {
-            showState(ResponseState.NetworkError);
-            return;
+            state.setErrorMessage(R.string.error_network);
+        } else {
+            state.setErrorMessage(R.string.error_request);
         }
-        showState(ResponseState.ServerError);
+
+        showState(state);
     }
 
-    private void checkResponseAndShowState(@NonNull Response<ResultsDTO> response) {
-        if (!response.isSuccessful()) {
-            showState(ResponseState.ServerError);
-            return;
-        }
-
-        final ResultsDTO body = response.body();
-        if (body == null) {
-            showState(ResponseState.HasNoData);
-            return;
-        }
-
-        final List<ResultDTO> results = body.getResults();
-        if (results == null) {
-            showState(ResponseState.HasNoData);
-            return;
-        }
-
-        if (results.isEmpty()) {
-            showState(ResponseState.HasNoData);
+    private void checkResponseAndShowState(@NonNull ResultsDTO response) {
+        final List<ResultDTO> results = response.getResults();
+        if (results == null || results.isEmpty()) {
+            ResponseState state = new ResponseState(false, false);
+            state.setErrorMessage(R.string.error_data_is_empty);
+            showState(state);
             return;
         }
 
@@ -131,11 +117,7 @@ public class NewsListPresenter extends ViewModel {
             newsList.add(NewsItemConverter.resultDTO2NewsItem(resultDTO));
         }
 
-        if (newsListView != null) {
-            newsListView.setData(newsList);
-        }
-
-        showState(ResponseState.HasData);
+        showStateWithData(new ResponseState(false, true), newsList);
     }
 
     private void dispose() {

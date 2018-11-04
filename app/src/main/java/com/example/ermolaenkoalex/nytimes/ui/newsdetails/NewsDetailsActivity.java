@@ -14,6 +14,7 @@ import android.webkit.WebViewClient;
 
 import com.example.ermolaenkoalex.nytimes.R;
 import com.example.ermolaenkoalex.nytimes.common.BaseActivity;
+import com.example.ermolaenkoalex.nytimes.model.NewsItem;
 
 import androidx.appcompat.app.ActionBar;
 import butterknife.BindView;
@@ -22,15 +23,14 @@ public class NewsDetailsActivity extends BaseActivity {
 
     private static final String KEY_URL = "KEY_URL";
     private static final String KEY_CATEGORY = "KEY_CATEGORY";
-    private static final String NYTIMES_HOST = "www.nytimes.com";
 
     @BindView(R.id.web_view)
     WebView webView;
 
-    public static void start(Activity activity, String url, String category) {
+    public static void start(Activity activity, NewsItem newsItem) {
         Intent startIntent = new Intent(activity, NewsDetailsActivity.class);
-        startIntent.putExtra(KEY_URL, url);
-        startIntent.putExtra(KEY_CATEGORY, category);
+        startIntent.putExtra(KEY_URL, newsItem.getItemUrl());
+        startIntent.putExtra(KEY_CATEGORY, newsItem.getCategory());
         activity.startActivity(startIntent);
     }
 
@@ -53,6 +53,8 @@ public class NewsDetailsActivity extends BaseActivity {
         settings.setJavaScriptEnabled(true);
 
         webView.setWebViewClient(new WebViewClient() {
+            private static final String NYTIMES_HOST = "www.nytimes.com";
+
             @TargetApi(Build.VERSION_CODES.LOLLIPOP)
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {

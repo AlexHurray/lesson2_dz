@@ -22,7 +22,7 @@
     <string name="unknown_error">Something went wrong!</string>
     <string name="error_data_is_empty">There is no data for your request</string>
     <string name="error_network">Network error. Please check your network connection and try again</string>
-    <string name="error_server">Server error. Probably sample token is done</string>
+    <string name="error_request">Request execution error</string>
 
     <string name="section_home">Home</string>
     <string name="section_opinion">Opinion</string>
