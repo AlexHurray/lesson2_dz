@@ -2,7 +2,7 @@ package com.example.ermolaenkoalex.nytimes.ui.newslist;
 
 import com.google.gson.annotations.SerializedName;
 
-public enum ContentFormat {
+public enum MultimediaFormat {
     @SerializedName("Standard Thumbnail") ST_THUMBNAIL,
     @SerializedName("thumbLarge") THUMB_LARGE,
     @SerializedName("Normal") NORMAL,

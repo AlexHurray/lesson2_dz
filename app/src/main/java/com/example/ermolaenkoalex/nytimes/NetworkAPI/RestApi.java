@@ -13,30 +13,23 @@ public final class RestApi {
 
     private static final String URL = "http://api.nytimes.com/";
     private static final String API_KEY = "dec3395ed3034d1599bac75404d47ed2";
-
     private static final int TIMEOUT_IN_SECONDS = 2;
-    private static RestApi sRestApi;
 
-    private final NewsEndpoint newsEndpoint;
+    private static NewsEndpoint newsEndpoint;
 
-
-    public static synchronized NewsEndpoint getInstance() {
-        if (sRestApi == null) {
-            sRestApi = new RestApi();
+    public static synchronized NewsEndpoint news() {
+        if (newsEndpoint == null) {
+            newsEndpoint = createNewsEndpoint();
         }
-        return sRestApi.news();
+        return newsEndpoint;
     }
 
-
     private RestApi() {
-        final OkHttpClient httpClient = buildOkHttpClient();
-        final Retrofit retrofit = buildRetrofitClient(httpClient);
-
-        newsEndpoint = retrofit.create(NewsEndpoint.class);
+        throw new AssertionError("No instances");
     }
 
     @NonNull
-    private Retrofit buildRetrofitClient(@NonNull OkHttpClient client) {
+    private static Retrofit buildRetrofitClient(@NonNull OkHttpClient client) {
         return new Retrofit.Builder()
                 .baseUrl(URL)
                 .client(client)
@@ -47,7 +40,7 @@ public final class RestApi {
     }
 
     @NonNull
-    private OkHttpClient buildOkHttpClient() {
+    private static OkHttpClient buildOkHttpClient() {
         final HttpLoggingInterceptor networkLogInterceptor = new HttpLoggingInterceptor();
         networkLogInterceptor.setLevel(HttpLoggingInterceptor.Level.BASIC);
 
@@ -60,7 +53,11 @@ public final class RestApi {
                 .build();
     }
 
-    private NewsEndpoint news() {
-        return newsEndpoint;
+    @NonNull
+    private static NewsEndpoint createNewsEndpoint() {
+        final OkHttpClient httpClient = buildOkHttpClient();
+        final Retrofit retrofit = buildRetrofitClient(httpClient);
+
+        return retrofit.create(NewsEndpoint.class);
     }
 }

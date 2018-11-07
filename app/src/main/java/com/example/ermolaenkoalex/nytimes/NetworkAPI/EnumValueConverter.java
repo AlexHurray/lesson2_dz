@@ -13,9 +13,8 @@ public class EnumValueConverter extends Converter.Factory {
     @Override
     public Converter<?, String> stringConverter(Type type, Annotation[] annotations, Retrofit retrofit) {
 
-        Converter<Enum, String> converter = null;
         if (type instanceof Class && ((Class<?>) type).isEnum()) {
-            converter = value -> {
+            return (Converter<Enum, String>) value -> {
                 try {
                     return value.getClass().getField(value.name()).getAnnotation(SerializedName.class).value();
                 } catch (Exception exception) {
@@ -24,6 +23,6 @@ public class EnumValueConverter extends Converter.Factory {
             };
         }
 
-        return converter;
+        return null;
     }
 }

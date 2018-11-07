@@ -1,17 +1,34 @@
 package com.example.ermolaenkoalex.nytimes.ui.newslist;
 
+import com.example.ermolaenkoalex.nytimes.R;
+import com.example.ermolaenkoalex.nytimes.model.NewsItem;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import androidx.annotation.IdRes;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 public class ResponseState {
     private boolean loading;
-    private boolean hasData;
-    private boolean hasError;
-    private int errorMessageId;
+    @Nullable
+    private Integer errorMessageId;
+    @NonNull
+    private List<NewsItem> data = new ArrayList<>();
 
-    ResponseState(boolean loading, boolean hasData) {
+    ResponseState(boolean loading) {
         this.loading = loading;
-        this.hasData = hasData;
-        this.hasError = false;
+    }
+
+    ResponseState(boolean loading, @NonNull List<NewsItem> data) {
+        this.loading = loading;
+
+        if (data.isEmpty()) {
+            this.errorMessageId = R.string.error_data_is_empty;
+        } else {
+            this.data.addAll(data);
+        }
     }
 
     public boolean isLoading() {
@@ -19,11 +36,15 @@ public class ResponseState {
     }
 
     public boolean hasData() {
-        return hasData;
+        return !data.isEmpty();
+    }
+
+    public List<NewsItem> getData() {
+        return data;
     }
 
     public boolean hasError() {
-        return hasError;
+        return errorMessageId != null;
     }
 
     public int getErrorMessage() {
@@ -32,6 +53,5 @@ public class ResponseState {
 
     public void setErrorMessage(@IdRes int errorMessage) {
         this.errorMessageId = errorMessage;
-        hasError = true;
     }
 }

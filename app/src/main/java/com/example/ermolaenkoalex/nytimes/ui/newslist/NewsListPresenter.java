@@ -54,16 +54,16 @@ public class NewsListPresenter extends ViewModel {
         if (newsList.isEmpty() || forceReload) {
             loadData();
         } else {
-            newsListView.setData(newsList);
+            newsListView.showState(new ResponseState(false, newsList));
         }
     }
 
     private void loadData() {
         dispose();
 
-        showState(new ResponseState(true, !newsList.isEmpty()));
+        showState(new ResponseState(true, newsList));
 
-        disposable = RestApi.getInstance()
+        disposable = RestApi.news()
                 .getNews(currentSection)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -82,17 +82,10 @@ public class NewsListPresenter extends ViewModel {
         }
     }
 
-    private void showStateWithData(@NonNull ResponseState state, @NonNull List<NewsItem> data) {
-        if (newsListView != null) {
-            newsListView.showState(state);
-            newsListView.setData(data);
-        }
-    }
-
     private void handleError(Throwable throwable) {
         Log.d(LOG_TAG, "handleError");
 
-        ResponseState state = new ResponseState(false, !newsList.isEmpty());
+        ResponseState state = new ResponseState(false, newsList);
 
         if (throwable instanceof IOException) {
             state.setErrorMessage(R.string.error_network);
@@ -106,7 +99,7 @@ public class NewsListPresenter extends ViewModel {
     private void checkResponseAndShowState(@NonNull ResultsDTO response) {
         final List<ResultDTO> results = response.getResults();
         if (results == null || results.isEmpty()) {
-            ResponseState state = new ResponseState(false, false);
+            ResponseState state = new ResponseState(false);
             state.setErrorMessage(R.string.error_data_is_empty);
             showState(state);
             return;
@@ -117,7 +110,7 @@ public class NewsListPresenter extends ViewModel {
             newsList.add(NewsItemConverter.resultDTO2NewsItem(resultDTO));
         }
 
-        showStateWithData(new ResponseState(false, true), newsList);
+        showState(new ResponseState(false, newsList));
     }
 
     private void dispose() {

@@ -1,9 +1,8 @@
 package com.example.ermolaenkoalex.nytimes.model;
 
-import java.io.Serializable;
 import java.util.Date;
 
-public class NewsItem implements Serializable {
+public class NewsItem {
     private final String title;
     private final String imageUrl;
     private final String category;

@@ -10,21 +10,17 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.ermolaenkoalex.nytimes.common.BaseActivity;
-import com.example.ermolaenkoalex.nytimes.model.NewsItem;
 import com.example.ermolaenkoalex.nytimes.ui.about.AboutActivity;
 import com.example.ermolaenkoalex.nytimes.R;
 import com.example.ermolaenkoalex.nytimes.ui.newsdetails.NewsDetailsActivity;
 import com.google.android.material.chip.Chip;
 
-import java.util.List;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.widget.TextViewCompat;
 import androidx.lifecycle.ViewModelProviders;
-import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import butterknife.BindView;
 
@@ -65,13 +61,7 @@ public class NewsListActivity extends BaseActivity
         recyclerView.setAdapter(adapter);
 
         int numCol = getResources().getInteger(R.integer.news_columns_count);
-
-        recyclerView.setLayoutManager(numCol == 1
-                ? new LinearLayoutManager(this)
-                : new GridLayoutManager(this, numCol));
-
-        recyclerView.addItemDecoration(new ItemDecorationNewsList(
-                getResources().getDimensionPixelSize(R.dimen.spacing_small), numCol));
+        recyclerView.setLayoutManager(new StaggeredGridLayoutManager(numCol, StaggeredGridLayoutManager.VERTICAL));
 
         refresher.setOnRefreshListener(this);
 
@@ -114,32 +104,29 @@ public class NewsListActivity extends BaseActivity
     }
 
     @Override
-    public void setData(@NonNull List<NewsItem> data) {
-        adapter.setData(data);
-        recyclerView.scrollToPosition(0);
-    }
-
-    @Override
     public void showState(@NonNull ResponseState state) {
         if (state.isLoading()) {
             refresher.setRefreshing(true);
         } else {
             refresher.setRefreshing(false);
-        }
 
-        if (state.hasData()) {
-            recyclerView.setVisibility(View.VISIBLE);
-            tvError.setVisibility(View.GONE);
+            if (state.hasData()) {
+                recyclerView.setVisibility(View.VISIBLE);
+                adapter.setData(state.getData());
+                recyclerView.scrollToPosition(0);
 
-            if (state.hasError()) {
-                Toast.makeText(this, state.getErrorMessage(), Toast.LENGTH_LONG).show();
-            }
-        } else {
-            recyclerView.setVisibility(View.GONE);
+                tvError.setVisibility(View.GONE);
 
-            if (state.hasError()) {
-                tvError.setVisibility(View.VISIBLE);
-                tvError.setText(state.getErrorMessage());
+                if (state.hasError()) {
+                    Toast.makeText(this, state.getErrorMessage(), Toast.LENGTH_LONG).show();
+                }
+            } else {
+                recyclerView.setVisibility(View.GONE);
+
+                if (state.hasError()) {
+                    tvError.setVisibility(View.VISIBLE);
+                    tvError.setText(state.getErrorMessage());
+                }
             }
         }
     }
