@@ -8,7 +8,6 @@ import java.util.List;
 
 import androidx.annotation.IdRes;
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 
 public class ResponseState {
     private boolean loading;
@@ -35,7 +34,7 @@ public class ResponseState {
         this.loading = loading;
 
         if (!data.isEmpty()) {
-            this.data.addAll(data);
+            this.data = data;
         }
 
         this.errorMessageId = errorMessage;

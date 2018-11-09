@@ -12,6 +12,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 public final class NewsItemConverter {
+    // need to do this, because sections are not fully described and can't be enum
+    private final static String SECTION_US = "U.S.";
 
     @NonNull
     public static NewsItem resultDTO2NewsItem(@NonNull ResultDTO resultDTO) {
@@ -27,7 +29,8 @@ public final class NewsItemConverter {
                 category,
                 resultDTO.getPublishedDate(),
                 resultDTO.getAbstractText(),
-                resultDTO.getUrl());
+                resultDTO.getUrl(),
+                category.equalsIgnoreCase(SECTION_US));
     }
 
     @Nullable

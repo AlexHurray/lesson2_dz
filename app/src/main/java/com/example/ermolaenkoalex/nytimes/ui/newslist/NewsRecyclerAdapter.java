@@ -68,8 +68,8 @@ public class NewsRecyclerAdapter extends RecyclerView.Adapter<NewsRecyclerAdapte
 
     @Override
     public int getItemViewType(int position) {
-        if (!newsItems.get(position).hasImage()) {
-            return R.layout.item_news_noimage;
+        if (!newsItems.get(position).isUS()) {
+            return R.layout.item_news_us;
         }
 
         return R.layout.item_news;
@@ -111,9 +111,7 @@ public class NewsRecyclerAdapter extends RecyclerView.Adapter<NewsRecyclerAdapte
 
         void bind(@NonNull NewsItem newsItem) {
             // Fill views with our data
-            if (newsItem.hasImage()) {
-                imageLoader.load(newsItem.getImageUrl()).into(imageView);
-            }
+            imageLoader.load(newsItem.getImageUrl()).into(imageView);
             categoryView.setText(newsItem.getCategory());
             titleView.setText(newsItem.getTitle());
             previewView.setText(newsItem.getPreviewText());

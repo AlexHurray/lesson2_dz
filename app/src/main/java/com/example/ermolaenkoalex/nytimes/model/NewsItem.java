@@ -9,14 +9,17 @@ public class NewsItem {
     private final Date publishDate;
     private final String previewText;
     private final String itemUrl;
+    private final boolean isUS;
 
-    public NewsItem(String title, String imageUrl, String category, Date publishDate, String previewText, String itemUrl) {
+    public NewsItem(String title, String imageUrl, String category, Date publishDate,
+                    String previewText, String itemUrl, boolean isUS) {
         this.title = title;
         this.imageUrl = imageUrl;
         this.category = category;
         this.publishDate = publishDate;
         this.previewText = previewText;
         this.itemUrl = itemUrl;
+        this.isUS = isUS;
     }
 
     public String getTitle() {
@@ -43,7 +46,7 @@ public class NewsItem {
         return itemUrl;
     }
 
-    public boolean hasImage() {
-        return imageUrl != null;
+    public boolean isUS() {
+        return isUS;
     }
 }

@@ -65,6 +65,7 @@ public class NewsListPresenter extends ViewModel {
 
         disposable = RestApi.news()
                 .getNews(currentSection)
+                .map(this::convert2NewsItemList)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(this::checkResponseAndShowState, this::handleError);
@@ -82,26 +83,35 @@ public class NewsListPresenter extends ViewModel {
         }
     }
 
+    private List<NewsItem> convert2NewsItemList(@Nullable ResultsDTO response) {
+        final List<ResultDTO> results = response.getResults();
+        if (results == null) {
+            return null;
+        }
+
+        List<NewsItem> items = new ArrayList<>();
+        for (ResultDTO resultDTO : results) {
+            items.add(NewsItemConverter.resultDTO2NewsItem(resultDTO));
+        }
+
+        return items;
+    }
+
     private void handleError(Throwable throwable) {
         Log.d(LOG_TAG, "handleError");
 
-        int errorMessageId = (throwable instanceof IOException) ? R.string.error_network : R.string.error_request;
+        int errorMessageId = throwable instanceof IOException ? R.string.error_network : R.string.error_request;
         showState(new ResponseState(false, newsList, errorMessageId));
     }
 
-    private void checkResponseAndShowState(@NonNull ResultsDTO response) {
-        final List<ResultDTO> results = response.getResults();
-        if (results == null || results.isEmpty()) {
+    private void checkResponseAndShowState(@NonNull List<NewsItem> items) {
+        if (items == null || items.isEmpty()) {
             ResponseState state = new ResponseState(false);
             showState(state);
             return;
         }
 
-        newsList.clear();
-        for (ResultDTO resultDTO : results) {
-            newsList.add(NewsItemConverter.resultDTO2NewsItem(resultDTO));
-        }
-
+        newsList = items;
         showState(new ResponseState(false, newsList));
     }
 
