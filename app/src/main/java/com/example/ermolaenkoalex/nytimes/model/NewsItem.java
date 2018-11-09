@@ -42,4 +42,8 @@ public class NewsItem {
     public String getItemUrl() {
         return itemUrl;
     }
+
+    public boolean hasImage() {
+        return imageUrl != null;
+    }
 }

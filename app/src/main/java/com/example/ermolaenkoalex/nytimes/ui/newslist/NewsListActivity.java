@@ -107,26 +107,26 @@ public class NewsListActivity extends BaseActivity
     public void showState(@NonNull ResponseState state) {
         if (state.isLoading()) {
             refresher.setRefreshing(true);
+            return;
+        }
+
+        refresher.setRefreshing(false);
+        if (state.hasData()) {
+            recyclerView.setVisibility(View.VISIBLE);
+            adapter.setData(state.getData());
+            recyclerView.scrollToPosition(0);
+
+            tvError.setVisibility(View.GONE);
+
+            if (state.hasError()) {
+                Toast.makeText(this, state.getErrorMessage(), Toast.LENGTH_LONG).show();
+            }
         } else {
-            refresher.setRefreshing(false);
+            recyclerView.setVisibility(View.GONE);
 
-            if (state.hasData()) {
-                recyclerView.setVisibility(View.VISIBLE);
-                adapter.setData(state.getData());
-                recyclerView.scrollToPosition(0);
-
-                tvError.setVisibility(View.GONE);
-
-                if (state.hasError()) {
-                    Toast.makeText(this, state.getErrorMessage(), Toast.LENGTH_LONG).show();
-                }
-            } else {
-                recyclerView.setVisibility(View.GONE);
-
-                if (state.hasError()) {
-                    tvError.setVisibility(View.VISIBLE);
-                    tvError.setText(state.getErrorMessage());
-                }
+            if (state.hasError()) {
+                tvError.setVisibility(View.VISIBLE);
+                tvError.setText(state.getErrorMessage());
             }
         }
     }

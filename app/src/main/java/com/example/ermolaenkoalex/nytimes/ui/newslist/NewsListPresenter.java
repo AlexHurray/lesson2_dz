@@ -2,7 +2,7 @@ package com.example.ermolaenkoalex.nytimes.ui.newslist;
 
 import android.util.Log;
 
-import com.example.ermolaenkoalex.nytimes.NetworkAPI.RestApi;
+import com.example.ermolaenkoalex.nytimes.api.RestApi;
 import com.example.ermolaenkoalex.nytimes.R;
 import com.example.ermolaenkoalex.nytimes.dto.ResultDTO;
 import com.example.ermolaenkoalex.nytimes.dto.ResultsDTO;
@@ -85,22 +85,14 @@ public class NewsListPresenter extends ViewModel {
     private void handleError(Throwable throwable) {
         Log.d(LOG_TAG, "handleError");
 
-        ResponseState state = new ResponseState(false, newsList);
-
-        if (throwable instanceof IOException) {
-            state.setErrorMessage(R.string.error_network);
-        } else {
-            state.setErrorMessage(R.string.error_request);
-        }
-
-        showState(state);
+        int errorMessageId = (throwable instanceof IOException) ? R.string.error_network : R.string.error_request;
+        showState(new ResponseState(false, newsList, errorMessageId));
     }
 
     private void checkResponseAndShowState(@NonNull ResultsDTO response) {
         final List<ResultDTO> results = response.getResults();
         if (results == null || results.isEmpty()) {
             ResponseState state = new ResponseState(false);
-            state.setErrorMessage(R.string.error_data_is_empty);
             showState(state);
             return;
         }

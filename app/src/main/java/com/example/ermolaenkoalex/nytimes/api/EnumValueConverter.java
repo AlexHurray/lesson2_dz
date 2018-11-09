@@ -1,4 +1,4 @@
-package com.example.ermolaenkoalex.nytimes.NetworkAPI;
+package com.example.ermolaenkoalex.nytimes.api;
 
 import com.google.gson.annotations.SerializedName;
 

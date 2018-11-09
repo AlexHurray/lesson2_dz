@@ -12,13 +12,13 @@ import androidx.annotation.Nullable;
 
 public class ResponseState {
     private boolean loading;
-    @Nullable
-    private Integer errorMessageId;
+    private int errorMessageId = 0;
     @NonNull
     private List<NewsItem> data = new ArrayList<>();
 
     ResponseState(boolean loading) {
         this.loading = loading;
+        this.errorMessageId = R.string.error_data_is_empty;
     }
 
     ResponseState(boolean loading, @NonNull List<NewsItem> data) {
@@ -29,6 +29,16 @@ public class ResponseState {
         } else {
             this.data.addAll(data);
         }
+    }
+
+    ResponseState(boolean loading, @NonNull List<NewsItem> data, @IdRes int errorMessage) {
+        this.loading = loading;
+
+        if (!data.isEmpty()) {
+            this.data.addAll(data);
+        }
+
+        this.errorMessageId = errorMessage;
     }
 
     public boolean isLoading() {
@@ -44,14 +54,10 @@ public class ResponseState {
     }
 
     public boolean hasError() {
-        return errorMessageId != null;
+        return errorMessageId != 0;
     }
 
     public int getErrorMessage() {
         return errorMessageId;
-    }
-
-    public void setErrorMessage(@IdRes int errorMessage) {
-        this.errorMessageId = errorMessage;
     }
 }

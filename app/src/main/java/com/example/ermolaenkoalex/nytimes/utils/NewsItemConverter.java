@@ -3,8 +3,8 @@ package com.example.ermolaenkoalex.nytimes.utils;
 import com.example.ermolaenkoalex.nytimes.dto.MultimediaDTO;
 import com.example.ermolaenkoalex.nytimes.dto.ResultDTO;
 import com.example.ermolaenkoalex.nytimes.model.NewsItem;
-import com.example.ermolaenkoalex.nytimes.ui.newslist.MultimediaFormat;
-import com.example.ermolaenkoalex.nytimes.ui.newslist.MultimediaType;
+import com.example.ermolaenkoalex.nytimes.dto.MultimediaFormat;
+import com.example.ermolaenkoalex.nytimes.dto.MultimediaType;
 
 import java.util.List;
 
@@ -46,8 +46,7 @@ public final class NewsItemConverter {
         }
 
         MultimediaDTO multimediaDTO = mediaObjects.get(0);
-        MultimediaType type = multimediaDTO.getType();
-        if (type == MultimediaType.IMAGE) {
+        if (multimediaDTO.getType() == MultimediaType.IMAGE) {
             return multimediaDTO.getUrl();
         }
 
@@ -55,9 +54,8 @@ public final class NewsItemConverter {
     }
 
     private static boolean isThumblarge(@NonNull MultimediaDTO multimediaDTO) {
-        MultimediaType type = multimediaDTO.getType();
-        MultimediaFormat format = multimediaDTO.getFormat();
-        return type == MultimediaType.IMAGE && format == MultimediaFormat.THUMB_LARGE;
+        return multimediaDTO.getType() == MultimediaType.IMAGE
+                && multimediaDTO.getFormat() == MultimediaFormat.THUMB_LARGE;
     }
 
     private NewsItemConverter() {

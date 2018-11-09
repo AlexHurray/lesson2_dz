@@ -22,7 +22,6 @@ import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
 
 public class NewsRecyclerAdapter extends RecyclerView.Adapter<NewsRecyclerAdapter.ViewHolder> {
-    private static final String CATEGORY_US = "U.S.";
 
     @NonNull
     private final List<NewsItem> newsItems = new ArrayList<>();
@@ -69,8 +68,8 @@ public class NewsRecyclerAdapter extends RecyclerView.Adapter<NewsRecyclerAdapte
 
     @Override
     public int getItemViewType(int position) {
-        if (newsItems.get(position).getCategory().equalsIgnoreCase(CATEGORY_US)) {
-            return R.layout.item_news_us;
+        if (!newsItems.get(position).hasImage()) {
+            return R.layout.item_news_noimage;
         }
 
         return R.layout.item_news;
@@ -112,7 +111,9 @@ public class NewsRecyclerAdapter extends RecyclerView.Adapter<NewsRecyclerAdapte
 
         void bind(@NonNull NewsItem newsItem) {
             // Fill views with our data
-            imageLoader.load(newsItem.getImageUrl()).into(imageView);
+            if (newsItem.hasImage()) {
+                imageLoader.load(newsItem.getImageUrl()).into(imageView);
+            }
             categoryView.setText(newsItem.getCategory());
             titleView.setText(newsItem.getTitle());
             previewView.setText(newsItem.getPreviewText());

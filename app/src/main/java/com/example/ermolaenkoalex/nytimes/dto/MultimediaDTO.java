@@ -1,7 +1,5 @@
 package com.example.ermolaenkoalex.nytimes.dto;
 
-import com.example.ermolaenkoalex.nytimes.ui.newslist.MultimediaFormat;
-import com.example.ermolaenkoalex.nytimes.ui.newslist.MultimediaType;
 import com.google.gson.annotations.SerializedName;
 
 public class MultimediaDTO {

@@ -1,4 +1,4 @@
-package com.example.ermolaenkoalex.nytimes.NetworkAPI;
+package com.example.ermolaenkoalex.nytimes.api;
 
 import java.util.concurrent.TimeUnit;
 
