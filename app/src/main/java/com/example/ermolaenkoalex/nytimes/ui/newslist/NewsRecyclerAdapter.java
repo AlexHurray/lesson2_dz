@@ -68,7 +68,7 @@ public class NewsRecyclerAdapter extends RecyclerView.Adapter<NewsRecyclerAdapte
 
     @Override
     public int getItemViewType(int position) {
-        if (!newsItems.get(position).isUS()) {
+        if (!newsItems.get(position).hasUsCategory()) {
             return R.layout.item_news_us;
         }
 

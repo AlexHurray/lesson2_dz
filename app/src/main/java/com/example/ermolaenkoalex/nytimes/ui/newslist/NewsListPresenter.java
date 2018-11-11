@@ -83,13 +83,13 @@ public class NewsListPresenter extends ViewModel {
         }
     }
 
-    private List<NewsItem> convert2NewsItemList(@Nullable ResultsDTO response) {
+    private List<NewsItem> convert2NewsItemList(@NonNull ResultsDTO response) {
+        List<NewsItem> items = new ArrayList<>();
         final List<ResultDTO> results = response.getResults();
         if (results == null) {
-            return null;
+            return items;
         }
 
-        List<NewsItem> items = new ArrayList<>();
         for (ResultDTO resultDTO : results) {
             items.add(NewsItemConverter.resultDTO2NewsItem(resultDTO));
         }
@@ -105,7 +105,7 @@ public class NewsListPresenter extends ViewModel {
     }
 
     private void checkResponseAndShowState(@NonNull List<NewsItem> items) {
-        if (items == null || items.isEmpty()) {
+        if (items.isEmpty()) {
             ResponseState state = new ResponseState(false);
             showState(state);
             return;
