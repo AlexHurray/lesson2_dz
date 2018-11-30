@@ -1,9 +1,7 @@
 package com.example.ermolaenkoalex.nytimes.ui.splash;
 
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.os.Handler;
 
 import com.example.ermolaenkoalex.nytimes.R;
 import com.example.ermolaenkoalex.nytimes.common.BaseActivity;
@@ -16,11 +14,10 @@ import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
 
 public class SplashActivity extends BaseActivity {
-
-    private CompositeDisposable compositeDisposable = new CompositeDisposable();
-
     private static final String KEY_LOGO = "KEY_LOGO";
     private static final long TIME_DELAY = 3;
+
+    private CompositeDisposable compositeDisposable = new CompositeDisposable();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,7 +34,7 @@ public class SplashActivity extends BaseActivity {
                     .subscribe(this::startSecondActivity);
             compositeDisposable.add(disposable);
         } else {
-            NewsListActivity.start(this);
+            startSecondActivity();
         }
     }
 

@@ -19,7 +19,9 @@ public class NewsDetailsPresenter extends BasePresenter<NewsDetailsView> {
 
     private int id;
 
-    public void getNews(int id) {
+    private boolean inProgress = false;
+
+    public void initNews(int id) {
         if (newsItem == null) {
             getDataFromDb(id);
         } else if (view != null) {
@@ -28,6 +30,16 @@ public class NewsDetailsPresenter extends BasePresenter<NewsDetailsView> {
     }
 
     public void delete() {
+        if (inProgress) {
+            return;
+        } else {
+            inProgress = true;
+        }
+
+        if (view != null) {
+            view.showProgress(true);
+        }
+
         Disposable disposable = repository.deleteItem(id)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -61,7 +73,9 @@ public class NewsDetailsPresenter extends BasePresenter<NewsDetailsView> {
     }
 
     private void onSuccessDelete() {
+        inProgress = false;
         if (view != null) {
+            view.showProgress(false);
             view.close(0);
         }
     }
@@ -75,8 +89,10 @@ public class NewsDetailsPresenter extends BasePresenter<NewsDetailsView> {
 
     private void handleDeleteError(Throwable throwable) {
         Log.e(LOG_TAG, throwable.toString());
+        inProgress = false;
         if (view != null) {
-            view.close(R.string.error_delete_in_db);
+            view.showProgress(false);
+            view.showErrorMassage(R.string.error_delete_in_db);
         }
     }
 }

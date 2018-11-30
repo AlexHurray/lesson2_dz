@@ -1,5 +1,7 @@
 package com.example.ermolaenkoalex.nytimes.db;
 
+import android.util.Log;
+
 import com.example.ermolaenkoalex.nytimes.model.NewsItem;
 
 import java.util.List;
@@ -9,21 +11,30 @@ import javax.inject.Inject;
 
 import io.reactivex.Completable;
 import io.reactivex.Observable;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.schedulers.Schedulers;
 
 public class NewsRepository {
+
+    private static final String LOG_TAG = "NewsRepository";
 
     @Inject
     NewsDao newsDao;
 
-    public Completable saveData(final List<NewsItem> newsList) {
+    public Disposable saveData(final List<NewsItem> newsList) {
         return Completable.fromCallable((Callable<Void>) () -> {
-
-            newsDao.deleteAll();
-            NewsItem[] news = newsList.toArray(new NewsItem[newsList.size()]);
-            newsDao.insertAll(news);
+            if (newsList.size() > 0) {
+                newsDao.deleteAll();
+                NewsItem[] news = newsList.toArray(new NewsItem[newsList.size()]);
+                newsDao.insertAll(news);
+            }
 
             return null;
-        });
+        }).subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(() -> Log.d(LOG_TAG, newsList.toString())
+                        , throwable -> Log.e(LOG_TAG, throwable.toString()));
     }
 
     public Completable saveItem(final NewsItem newsItem) {

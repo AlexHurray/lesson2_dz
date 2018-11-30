@@ -5,7 +5,9 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -13,7 +15,6 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.example.ermolaenkoalex.nytimes.R;
 import com.example.ermolaenkoalex.nytimes.common.BaseActivity;
-import com.example.ermolaenkoalex.nytimes.db.NewsRepository;
 import com.example.ermolaenkoalex.nytimes.model.NewsItem;
 import com.example.ermolaenkoalex.nytimes.ui.newsedit.NewsEditActivity;
 import com.example.ermolaenkoalex.nytimes.utils.StringUtils;
@@ -41,8 +42,8 @@ public class NewsDetailsActivity extends BaseActivity implements NewsDetailsView
     @BindView(R.id.tv_full_text)
     TextView fullTextView;
 
-    @Inject
-    NewsRepository repository;
+    @BindView(R.id.progress_bar)
+    ProgressBar progressBar;
 
     private int id;
 
@@ -70,7 +71,7 @@ public class NewsDetailsActivity extends BaseActivity implements NewsDetailsView
     protected void onResume() {
         super.onResume();
         presenter.bind(this);
-        presenter.getNews(id);
+        presenter.initNews(id);
     }
 
     @Override
@@ -128,10 +129,19 @@ public class NewsDetailsActivity extends BaseActivity implements NewsDetailsView
 
     @Override
     public void close(@IdRes int errorMessage) {
+        showErrorMassage(errorMessage);
+        finish();
+    }
+
+    @Override
+    public void showErrorMassage(@IdRes int errorMessage) {
         if (errorMessage != 0) {
             Toast.makeText(this, errorMessage, Toast.LENGTH_LONG).show();
         }
+    }
 
-        finish();
+    @Override
+    public void showProgress(boolean show) {
+        progressBar.setVisibility(show ? View.VISIBLE : View.INVISIBLE);
     }
 }

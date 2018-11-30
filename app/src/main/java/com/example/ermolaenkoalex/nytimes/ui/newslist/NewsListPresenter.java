@@ -121,11 +121,7 @@ public class NewsListPresenter extends BasePresenter<NewsListView> {
         newsList = items;
         showState(new ResponseState(false, newsList));
 
-        Disposable disposable = repository.saveData(items)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(() -> Log.d(LOG_TAG, items.toString())
-                        , throwable -> Log.e(LOG_TAG, throwable.toString()));
+        Disposable disposable = repository.saveData(items);
         compositeDisposable.add(disposable);
     }
 

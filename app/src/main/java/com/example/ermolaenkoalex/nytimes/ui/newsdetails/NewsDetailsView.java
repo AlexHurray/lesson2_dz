@@ -10,4 +10,8 @@ public interface NewsDetailsView {
     void setData(@NonNull NewsItem newsItem);
 
     void close(@IdRes int errorMessage);
+
+    void showErrorMassage(@IdRes int errorMessage);
+
+    void showProgress(boolean show);
 }

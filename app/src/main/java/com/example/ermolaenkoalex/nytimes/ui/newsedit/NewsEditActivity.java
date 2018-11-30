@@ -5,7 +5,9 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.example.ermolaenkoalex.nytimes.R;
@@ -35,6 +37,9 @@ public class NewsEditActivity extends BaseActivity implements NewsEditView {
 
     @BindView(R.id.et_image_url)
     EditText etImageUrl;
+
+    @BindView(R.id.progress_bar)
+    ProgressBar progressBar;
 
     private int id;
 
@@ -93,7 +98,10 @@ public class NewsEditActivity extends BaseActivity implements NewsEditView {
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_apply:
-                presenter.saveData();
+                presenter.saveData(etTitle.getText().toString(),
+                        etPreviewText.getText().toString(),
+                        etImageUrl.getText().toString(),
+                        etNewsUrl.getText().toString());
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -109,19 +117,20 @@ public class NewsEditActivity extends BaseActivity implements NewsEditView {
     }
 
     @Override
-    public void updateData(NewsItem newsItem) {
-        newsItem.setTitle(etTitle.getText().toString());
-        newsItem.setPreviewText(etPreviewText.getText().toString());
-        newsItem.setImageUrl(etImageUrl.getText().toString());
-        newsItem.setItemUrl(etNewsUrl.getText().toString());
+    public void close(@IdRes int errorMessage) {
+        showErrorMassage(errorMessage);
+        finish();
     }
 
     @Override
-    public void close(@IdRes int errorMessage) {
+    public void showErrorMassage(@IdRes int errorMessage) {
         if (errorMessage != 0) {
             Toast.makeText(this, errorMessage, Toast.LENGTH_LONG).show();
         }
+    }
 
-        finish();
+    @Override
+    public void showProgress(boolean show) {
+        progressBar.setVisibility(show ? View.VISIBLE : View.GONE);
     }
 }
