@@ -2,19 +2,12 @@ package com.example.ermolaenkoalex.nytimes.ui.newslist;
 
 import android.util.Log;
 
-import com.example.ermolaenkoalex.nytimes.api.NewsEndpoint;
 import com.example.ermolaenkoalex.nytimes.R;
 import com.example.ermolaenkoalex.nytimes.common.BasePresenter;
-import com.example.ermolaenkoalex.nytimes.dto.ResultDTO;
-import com.example.ermolaenkoalex.nytimes.dto.ResultsDTO;
 import com.example.ermolaenkoalex.nytimes.model.NewsItem;
-import com.example.ermolaenkoalex.nytimes.utils.NewsItemConverter;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-
-import javax.inject.Inject;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -34,10 +27,6 @@ public class NewsListPresenter extends BasePresenter<NewsListView> {
 
     @NonNull
     private Section currentSection = Section.HOME;
-
-    @NonNull
-    @Inject
-    NewsEndpoint news;
 
     public NewsListPresenter() {
         Disposable disposable = repository.getDataObservable()
@@ -60,22 +49,21 @@ public class NewsListPresenter extends BasePresenter<NewsListView> {
         currentSection = section;
 
         if (newsList.isEmpty() || forceReload) {
-            loadDataFromInternet();
+            loadDataFromInternetAndSave2Db();
         } else {
             view.showState(new ResponseState(false, newsList));
         }
     }
 
-    private void loadDataFromInternet() {
+    private void loadDataFromInternetAndSave2Db() {
         dispose();
 
         showState(new ResponseState(true, newsList));
 
-        disposable = news.getNews(currentSection)
-                .map(this::convert2NewsItemList)
+        disposable = repository.updateNews(currentSection)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(this::checkResponseAndShowState, this::handleError);
+                .subscribe(this::handleSuccess, this::handleError);
     }
 
     @Override
@@ -90,39 +78,15 @@ public class NewsListPresenter extends BasePresenter<NewsListView> {
         }
     }
 
-    private List<NewsItem> convert2NewsItemList(@NonNull ResultsDTO response) {
-        List<NewsItem> items = new ArrayList<>();
-        final List<ResultDTO> results = response.getResults();
-        if (results == null) {
-            return items;
-        }
-
-        for (ResultDTO resultDTO : results) {
-            items.add(NewsItemConverter.resultDTO2NewsItem(resultDTO));
-        }
-
-        return items;
-    }
-
-    private void handleError(Throwable throwable) {
+     private void handleError(Throwable throwable) {
         Log.d(LOG_TAG, "handleError");
 
         int errorMessageId = throwable instanceof IOException ? R.string.error_network : R.string.error_request;
         showState(new ResponseState(false, newsList, errorMessageId));
     }
 
-    private void checkResponseAndShowState(@NonNull List<NewsItem> items) {
-        if (items.isEmpty()) {
-            ResponseState state = new ResponseState(false);
-            showState(state);
-            return;
-        }
-
-        newsList = items;
-        showState(new ResponseState(false, newsList));
-
-        Disposable disposable = repository.saveData(items);
-        compositeDisposable.add(disposable);
+    private void handleSuccess() {
+        Log.d(LOG_TAG, "handleSuccess");
     }
 
     private void dispose() {

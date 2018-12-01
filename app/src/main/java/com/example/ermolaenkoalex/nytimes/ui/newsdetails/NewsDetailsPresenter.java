@@ -22,7 +22,7 @@ public class NewsDetailsPresenter extends BasePresenter<NewsDetailsView> {
     private boolean inProgress = false;
 
     public void initNews(int id) {
-        if (newsItem == null) {
+        if (newsItem == null || newsItem.getId() != id) {
             getDataFromDb(id);
         } else if (view != null) {
             view.setData(newsItem);
@@ -76,14 +76,15 @@ public class NewsDetailsPresenter extends BasePresenter<NewsDetailsView> {
         inProgress = false;
         if (view != null) {
             view.showProgress(false);
-            view.close(0);
+            view.close();
         }
     }
 
     private void handleGetError(Throwable throwable) {
         Log.e(LOG_TAG, throwable.toString());
         if (view != null) {
-            view.close(R.string.error_get_from_db);
+            view.showErrorMessage(R.string.error_get_from_db);
+            view.close();
         }
     }
 
@@ -92,7 +93,7 @@ public class NewsDetailsPresenter extends BasePresenter<NewsDetailsView> {
         inProgress = false;
         if (view != null) {
             view.showProgress(false);
-            view.showErrorMassage(R.string.error_delete_in_db);
+            view.showErrorMessage(R.string.error_delete_in_db);
         }
     }
 }

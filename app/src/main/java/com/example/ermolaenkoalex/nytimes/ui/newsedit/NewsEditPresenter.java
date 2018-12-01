@@ -69,14 +69,15 @@ public class NewsEditPresenter extends BasePresenter<NewsEditView> {
         inProgress = false;
         if (view != null) {
             view.showProgress(false);
-            view.close(0);
+            view.close();
         }
     }
 
     private void handleGetError(Throwable throwable) {
         Log.e(LOG_TAG, throwable.toString());
         if (view != null) {
-            view.close(R.string.error_get_from_db);
+            view.showErrorMessage(R.string.error_get_from_db);
+            view.close();
         }
     }
 
@@ -85,7 +86,7 @@ public class NewsEditPresenter extends BasePresenter<NewsEditView> {
         inProgress = false;
         if (view != null) {
             view.showProgress(false);
-            view.close(R.string.error_save_in_db);
+            view.showErrorMessage(R.string.error_save_in_db);
         }
     }
 }

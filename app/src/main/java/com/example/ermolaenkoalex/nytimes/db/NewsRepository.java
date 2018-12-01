@@ -1,41 +1,31 @@
 package com.example.ermolaenkoalex.nytimes.db;
 
-import android.util.Log;
-
+import com.example.ermolaenkoalex.nytimes.api.NewsEndpoint;
+import com.example.ermolaenkoalex.nytimes.dto.ResultDTO;
+import com.example.ermolaenkoalex.nytimes.dto.ResultsDTO;
 import com.example.ermolaenkoalex.nytimes.model.NewsItem;
+import com.example.ermolaenkoalex.nytimes.ui.newslist.Section;
+import com.example.ermolaenkoalex.nytimes.utils.NewsItemConverter;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
 
 import javax.inject.Inject;
 
+import androidx.annotation.NonNull;
 import io.reactivex.Completable;
 import io.reactivex.Observable;
-import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.disposables.Disposable;
-import io.reactivex.schedulers.Schedulers;
 
 public class NewsRepository {
 
-    private static final String LOG_TAG = "NewsRepository";
-
+    @NonNull
     @Inject
     NewsDao newsDao;
 
-    public Disposable saveData(final List<NewsItem> newsList) {
-        return Completable.fromCallable((Callable<Void>) () -> {
-            if (newsList.size() > 0) {
-                newsDao.deleteAll();
-                NewsItem[] news = newsList.toArray(new NewsItem[newsList.size()]);
-                newsDao.insertAll(news);
-            }
-
-            return null;
-        }).subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(() -> Log.d(LOG_TAG, newsList.toString())
-                        , throwable -> Log.e(LOG_TAG, throwable.toString()));
-    }
+    @NonNull
+    @Inject
+    NewsEndpoint newsApi;
 
     public Completable saveItem(final NewsItem newsItem) {
         return newsDao.insert(newsItem);
@@ -53,6 +43,37 @@ public class NewsRepository {
         return Completable.fromCallable((Callable<Void>) () -> {
 
             newsDao.delete(id);
+            return null;
+        });
+    }
+
+    public Completable updateNews(Section section) {
+        return newsApi.getNews(section)
+                .map(this::convert2NewsItemList)
+                .flatMapCompletable(this::saveData);
+    }
+
+    private List<NewsItem> convert2NewsItemList(@NonNull ResultsDTO response) {
+        List<NewsItem> items = new ArrayList<>();
+        final List<ResultDTO> results = response.getResults();
+        if (results == null) {
+            return items;
+        }
+
+        for (ResultDTO resultDTO : results) {
+            items.add(NewsItemConverter.resultDTO2NewsItem(resultDTO));
+        }
+
+        return items;
+    }
+
+    private Completable saveData(final List<NewsItem> newsList) {
+        return Completable.fromCallable((Callable<Void>) () -> {
+
+            newsDao.deleteAll();
+            NewsItem[] news = newsList.toArray(new NewsItem[newsList.size()]);
+            newsDao.insertAll(news);
+
             return null;
         });
     }

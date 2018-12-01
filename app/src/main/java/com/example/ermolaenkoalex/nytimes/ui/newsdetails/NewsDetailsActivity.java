@@ -128,16 +128,13 @@ public class NewsDetailsActivity extends BaseActivity implements NewsDetailsView
     }
 
     @Override
-    public void close(@IdRes int errorMessage) {
-        showErrorMassage(errorMessage);
+    public void close() {
         finish();
     }
 
     @Override
-    public void showErrorMassage(@IdRes int errorMessage) {
-        if (errorMessage != 0) {
-            Toast.makeText(this, errorMessage, Toast.LENGTH_LONG).show();
-        }
+    public void showErrorMessage(@IdRes int errorMessage) {
+        Toast.makeText(this, errorMessage, Toast.LENGTH_LONG).show();
     }
 
     @Override
