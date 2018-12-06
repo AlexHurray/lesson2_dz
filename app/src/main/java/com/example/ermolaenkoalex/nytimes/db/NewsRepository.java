@@ -54,7 +54,7 @@ public class NewsRepository {
     }
 
     private List<NewsItem> convert2NewsItemList(@NonNull ResultsDTO response) {
-        List<NewsItem> items = new ArrayList<>();
+        final List<NewsItem> items = new ArrayList<>();
         final List<ResultDTO> results = response.getResults();
         if (results == null) {
             return items;

@@ -5,6 +5,7 @@ import android.util.Log;
 import com.example.ermolaenkoalex.nytimes.R;
 import com.example.ermolaenkoalex.nytimes.common.BasePresenter;
 import com.example.ermolaenkoalex.nytimes.model.NewsItem;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -78,7 +79,7 @@ public class NewsListPresenter extends BasePresenter<NewsListView> {
         }
     }
 
-     private void handleError(Throwable throwable) {
+    private void handleError(Throwable throwable) {
         Log.d(LOG_TAG, "handleError");
 
         int errorMessageId = throwable instanceof IOException ? R.string.error_network : R.string.error_request;
