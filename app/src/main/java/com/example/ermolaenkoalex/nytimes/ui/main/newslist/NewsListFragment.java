@@ -73,7 +73,7 @@ public class NewsListFragment extends BaseFragment
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         setHasOptionsMenu(true);
-        setRetainInstance(true);
+        //setRetainInstance(true);
         return inflater.inflate(R.layout.fragment_news_list, container, false);
     }
 
