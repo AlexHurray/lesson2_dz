@@ -3,6 +3,8 @@ package com.example.ermolaenkoalex.nytimes.ui.main;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.FrameLayout;
 
 import com.example.ermolaenkoalex.nytimes.R;
 import com.example.ermolaenkoalex.nytimes.common.BaseFragment;
@@ -32,6 +34,10 @@ public class MainActivity extends BaseOneTwoFragmentActivity implements NewsList
     @NonNull
     RecyclerView recyclerViewChips;
 
+    @BindView(R.id.frame_detail)
+    @NonNull
+    FrameLayout frameDetails;
+
     public static void start(Activity activity) {
         Intent startIntent = new Intent(activity, MainActivity.class);
         activity.startActivity(startIntent);
@@ -48,14 +54,9 @@ public class MainActivity extends BaseOneTwoFragmentActivity implements NewsList
             changePrimaryFragment(new NewsListFragment(), FRAGMENT_LIST_TAG);
         } else {
             Fragment details = getSupportFragmentManager().findFragmentByTag(FRAGMENT_DETAILS_TAG);
-            Fragment edit = getSupportFragmentManager().findFragmentByTag(FRAGMENT_EDIT_TAG);
 
             if (details != null) {
-                changeSecondaryFragment(details, FRAGMENT_DETAILS_TAG, true);
-
-                if (edit != null) {
-                    changeSecondaryFragment(edit, FRAGMENT_EDIT_TAG);
-                }
+                frameDetails.setVisibility(View.VISIBLE);
             }
         }
     }
@@ -63,6 +64,7 @@ public class MainActivity extends BaseOneTwoFragmentActivity implements NewsList
     @Override
     public void onNewsClicked(int id) {
         changeSecondaryFragment(NewsDetailsFragment.newInstance(id), FRAGMENT_DETAILS_TAG, true);
+        frameDetails.setVisibility(View.VISIBLE);
     }
 
     @Override
@@ -111,6 +113,7 @@ public class MainActivity extends BaseOneTwoFragmentActivity implements NewsList
                 detailsFragment.showTitle();
             } else if (listFragment != null) {
                 listFragment.showTitle();
+                frameDetails.setVisibility(View.GONE);
             }
         }
     }
@@ -128,11 +131,13 @@ public class MainActivity extends BaseOneTwoFragmentActivity implements NewsList
 
     private void clickOnChip(Section section) {
         resetSecondaryFragment();
+        frameDetails.setVisibility(View.GONE);
 
         NewsListFragment listFragment = (NewsListFragment) getSupportFragmentManager().findFragmentByTag(FRAGMENT_LIST_TAG);
 
         if (listFragment != null) {
             listFragment.loadNews(section);
+            listFragment.showTitle();
         }
     }
 }

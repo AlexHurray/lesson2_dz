@@ -13,6 +13,12 @@
         tools:listitem="@layout/item_news" />
 
     <FrameLayout
+        android:id="@+id/frame_detail"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone" />
+
+    <FrameLayout
         android:id="@+id/frame_list"
         android:layout_width="match_parent"
         android:layout_height="match_parent">

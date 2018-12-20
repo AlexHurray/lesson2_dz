@@ -115,6 +115,7 @@ public class NewsDetailsFragment extends BaseFragment implements NewsDetailsView
     public void setData(NewsItem newsItem) {
         setTitle(newsItem.getCategory().toUpperCase(), true);
 
+        id = newsItem.getId();
         RequestOptions imageOption = new RequestOptions()
                 .placeholder(R.drawable.placeholder_image)
                 .fallback(R.drawable.placeholder_image)

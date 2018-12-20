@@ -10,19 +10,6 @@ import androidx.fragment.app.Fragment;
 public abstract class BaseOneTwoFragmentActivity extends BaseActivity {
     private static final String BACKSTACK_INIT_NAME = "BACKSTACK_INIT_NAME";
 
-    private boolean isTwoPanel;
-
-    @Override
-    public void onContentChanged() {
-        super.onContentChanged();
-        isTwoPanel = findViewById(R.id.frame_detail) != null;
-    }
-
-    public @IdRes
-    int getFrameIdForNextFragments() {
-        return isTwoPanel ? R.id.frame_detail : R.id.frame_list;
-    }
-
     protected void changePrimaryFragment(@NonNull Fragment fragment, @Nullable String tag) {
         getSupportFragmentManager()
                 .beginTransaction()
@@ -45,7 +32,7 @@ public abstract class BaseOneTwoFragmentActivity extends BaseActivity {
                 .setCustomAnimations(
                         android.R.animator.fade_in,
                         android.R.animator.fade_out)
-                .replace(getFrameIdForNextFragments(), fragment, tag)
+                .replace(R.id.frame_detail, fragment, tag)
                 .addToBackStack(null)
                 .commit();
     }
